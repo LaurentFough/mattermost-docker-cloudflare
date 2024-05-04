@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  cf-tunnel:
+    depends_on:
+      - mattermost
+    container_name: cf-tunnel_mattermost
+    image: cloudflare/cloudflared:${CLOUDFLARED_IMAGE_TAG}
+    restart: ${RESTART_POLICY}
+    environment:
+      # timezone inside container
+      - TUNNEL_TOKEN=${CLOUDFLARED_TUNNEL_TOKEN}
+    command: tunnel --no-autoupdate run
+
+  mattermost:
+    ports:
+      - ${CALLS_PORT}:${CALLS_PORT}/udp
+      - ${CALLS_PORT}:${CALLS_PORT}/tcp
+
+# This network name is being used for Let's Encrypt certificate renewal
+networks:
+  default:
+    name: mattermost
